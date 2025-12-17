@@ -89,6 +89,7 @@ async function renderPubs() {
       </div>
     </div>
   `).join("");
+  if (window.AOS) AOS.refresh();
 }
 renderPubs();
 </script>
@@ -106,6 +107,7 @@ renderPubs();
   <script>AOS.init({ once:true, duration:700 });</script>
 </body>
 </html>
+
 
 
 
