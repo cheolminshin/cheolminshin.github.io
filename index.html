@@ -71,6 +71,7 @@
 
     <h2>Publications</h2>
 <div id="pubs"></div>
+    
 <section id="publications" data-aos="fade-up">
   <h2>Publications</h2>
   <div id="pubs"></div>
@@ -157,46 +158,6 @@ async function renderPubs() {
 renderPubs();
 </script>
 
-<script>
-function esc(s){ return (s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
-  
-async function renderPubs() {
-  const res = await fetch("./data/publications.json");
-  const pubs = await res.json();
-  const root = document.getElementById("pubs");
-
-  root.innerHTML = pubs.map(p => {
-    const authorsHtml = (p.authors || []).map(a => {
-      const name = esc(a.name);
-      return a.url
-        ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${name}</a>`
-        : name;
-    }).join(", ");
-
-    const L = p.links || {};
-    const btn = (href, label) =>
-      href ? `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${label}</a>` : "";
-
-    return `
-      <div class="pub-item">
-        <div><strong>${esc(p.title)}</strong> (${p.year || ""})</div>
-        <div>${authorsHtml}</div>
-        <div>${esc(p.venue || "")}</div>
-        <div class="pub-links">
-          ${btn(L.journal, "Journal link")}
-          ${btn(L.arxiv, "arXiv")}
-          ${btn(L.pdf, "PDF")}
-          ${btn(L.code, "Code")}
-        </div>
-      </div>
-    `;
-  }).join("");
-  if (window.AOS) AOS.refresh();
-}
-renderPubs();
-</script>
-
-
     <section id="talks" data-aos="fade-up">
       <h2>Talks</h2>
       <ul>
@@ -209,6 +170,7 @@ renderPubs();
   <script>AOS.init({ once:true, duration:700 });</script>
 </body>
 </html>
+
 
 
 
