@@ -71,6 +71,91 @@
 
     <h2>Publications</h2>
 <div id="pubs"></div>
+<section id="publications" data-aos="fade-up">
+  <h2>Publications</h2>
+  <div id="pubs"></div>
+</section>
+
+<style>
+  .pub-item { margin-bottom: 14px; }
+  .pub-links { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+function esc(s){
+  return (s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+function normName(s){
+  return (s ?? "")
+    .replace(/[{}]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/,$/, "");
+}
+function btn(href, label){
+  return href ? `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${label}</a>` : "";
+}
+
+async function renderPubs() {
+  const [pubRes, authorRes] = await Promise.all([
+    fetch("./data/publications.json"),
+    fetch("./data/author_links.json")
+  ]);
+
+  const pubs = await pubRes.json();
+  const authorLinksRaw = await authorRes.json();
+
+  // 키 정규화해서 매칭률 올림
+  const authorLinks = {};
+  for (const [k, v] of Object.entries(authorLinksRaw)) {
+    authorLinks[normName(k)] = v;
+  }
+
+  const root = document.getElementById("pubs");
+
+  root.innerHTML = pubs.map(p => {
+    const authorsHtml = (p.authors || []).map(a0 => {
+      const a = normName(a0);
+      const url = authorLinks[a];
+      return url
+        ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(a)}</a>`
+        : esc(a);
+    }).join(", ");
+
+    // Journal link 우선순위: url -> doi
+    const journalLink = p.url ? p.url : (p.doi ? `https://doi.org/${p.doi}` : "");
+    const arxivLink = p.arxiv || "";
+
+    return `
+      <div class="pub-item">
+        <div><strong>${esc(p.title)}</strong> (${p.year || ""})</div>
+        <div>${authorsHtml}</div>
+        <div>${esc(p.venue || "")}</div>
+        <div class="pub-links">
+          ${btn(journalLink, "Journal link")}
+          ${btn(arxivLink, "arXiv")}
+          ${btn(p.pdf || "", "PDF")}
+          ${btn(p.code || "", "Code")}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if (window.AOS) AOS.refresh();
+}
+
+renderPubs();
+</script>
 
 <script>
 function esc(s){ return (s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
@@ -124,6 +209,7 @@ renderPubs();
   <script>AOS.init({ once:true, duration:700 });</script>
 </body>
 </html>
+
 
 
 
