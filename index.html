@@ -69,6 +69,31 @@
       </ul>
     </section>
 
+    <h2>Publications</h2>
+<div id="pubs"></div>
+
+<script>
+async function renderPubs() {
+  const res = await fetch("./data/publications.json");
+  const pubs = await res.json();
+  const root = document.getElementById("pubs");
+
+  root.innerHTML = pubs.map(p => `
+    <div style="margin-bottom:12px;">
+      <div><strong>${p.title}</strong> (${p.year || ""})</div>
+      <div>${(p.authors || []).join(", ")}</div>
+      <div>${p.venue || ""}</div>
+      <div>
+        ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">Link</a>` : ""}
+        ${p.doi ? ` · <a href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI</a>` : ""}
+      </div>
+    </div>
+  `).join("");
+}
+renderPubs();
+</script>
+
+
     <section id="talks" data-aos="fade-up">
       <h2>Talks</h2>
       <ul>
@@ -81,6 +106,7 @@
   <script>AOS.init({ once:true, duration:700 });</script>
 </body>
 </html>
+
 
 
 
