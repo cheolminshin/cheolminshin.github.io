@@ -73,22 +73,39 @@
 <div id="pubs"></div>
 
 <script>
+function esc(s){ return (s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+  
 async function renderPubs() {
   const res = await fetch("./data/publications.json");
   const pubs = await res.json();
   const root = document.getElementById("pubs");
 
-  root.innerHTML = pubs.map(p => `
-    <div style="margin-bottom:12px;">
-      <div><strong>${p.title}</strong> (${p.year || ""})</div>
-      <div>${(p.authors || []).join(", ")}</div>
-      <div>${p.venue || ""}</div>
-      <div>
-        ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">Link</a>` : ""}
-        ${p.doi ? ` · <a href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI</a>` : ""}
+  root.innerHTML = pubs.map(p => {
+    const authorsHtml = (p.authors || []).map(a => {
+      const name = esc(a.name);
+      return a.url
+        ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${name}</a>`
+        : name;
+    }).join(", ");
+
+    const L = p.links || {};
+    const btn = (href, label) =>
+      href ? `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${label}</a>` : "";
+
+    return `
+      <div class="pub-item">
+        <div><strong>${esc(p.title)}</strong> (${p.year || ""})</div>
+        <div>${authorsHtml}</div>
+        <div>${esc(p.venue || "")}</div>
+        <div class="pub-links">
+          ${btn(L.journal, "Journal link")}
+          ${btn(L.arxiv, "arXiv")}
+          ${btn(L.pdf, "PDF")}
+          ${btn(L.code, "Code")}
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
   if (window.AOS) AOS.refresh();
 }
 renderPubs();
@@ -107,6 +124,7 @@ renderPubs();
   <script>AOS.init({ once:true, duration:700 });</script>
 </body>
 </html>
+
 
 
 
