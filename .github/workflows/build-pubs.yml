@@ -1,0 +1,35 @@
+name: Build publications.json
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "data/publications.bib"
+      - "scripts/build_pubs.py"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install bibtexparser
+
+      - name: Build publications.json
+        run: python scripts/build_pubs.py
+
+      - name: Commit publications.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/publications.json
+          git commit -m "Auto-update publications.json" || exit 0
+          git push
